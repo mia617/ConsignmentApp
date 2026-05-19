@@ -149,8 +149,11 @@ async function callServer(images, prompt, system) {
     })
   })
 
-  const data = await response.json()
-  if (!response.ok) throw new Error(data.error?.message || 'API error')
+  let data
+  const raw = await response.text()
+  try { data = JSON.parse(raw) } catch { throw new Error(`Server error (${response.status})`) }
+
+  if (!response.ok) throw new Error(data.error?.message || `API error ${response.status}`)
 
   const text  = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('')
   const clean = text.replace(/```json|```/gi, '').trim()
