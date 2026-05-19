@@ -49,7 +49,7 @@ export default function Step3Listing({ tab, listing, itemDetails, draftRow, onBa
           <PriceBox label="Recommended" value={fmt(listing.price_recommended)} sub={`~${listing.days_to_sell_estimate || '?'} days`} accent={accent} highlight />
           <PriceBox label="Optimistic" value={fmt(listing.price_optimistic)} sub="If patient" muted />
         </div>
-        {listing.reference_url && (
+        {listing.reference_url && /^https?:\/\//i.test(listing.reference_url) && (
           <a href={listing.reference_url} target="_blank" rel="noreferrer" style={{ ...s.refLink, color: accent }}>
             View comparable listing ↗
           </a>

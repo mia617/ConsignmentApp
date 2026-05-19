@@ -71,13 +71,15 @@ export default function Step1Photos({ tab, category, setCategory, categories, on
         <span style={{ fontSize: 28 }}>📁</span>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: accent }}>Select all photos at once</div>
-          <div style={{ fontSize: 11, color: '#9A8A78', marginTop: 2 }}>Pick multiple images in one go — they'll fill the slots below</div>
+          <div style={{ fontSize: 11, color: '#9A8A78', marginTop: 2 }}>Pick multiple — they'll fill empty slots in order. Swap any slot individually below.</div>
         </div>
         <input type="file" accept="image/*" multiple style={{ display: 'none' }}
           onChange={e => {
             const files = Array.from(e.target.files)
+            const emptySlots = shots.filter(sh => !shotPhotos[sh.id])
             files.forEach((f, i) => {
-              if (i < shots.length) addPhoto(shots[i].id, f)
+              const slot = emptySlots[i] || shots[i]
+              if (slot) addPhoto(slot.id, f)
             })
           }} />
       </label>

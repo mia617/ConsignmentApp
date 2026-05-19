@@ -47,7 +47,7 @@ export default async function handler(req, res) {
 
     const body = {
       model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+      max_tokens: 4000,
       ...(system && { system }),
       messages,
     }
