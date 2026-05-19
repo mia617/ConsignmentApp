@@ -164,21 +164,25 @@ async function callServer(images, prompt, system) {
 }
 
 // ── FILE HELPERS ──────────────────────────────────────────────────────────────
+// Always converts to JPEG regardless of input format (png, heic, webp, etc.)
+// so the media_type sent to Claude always matches the actual bytes
 export function toBase64(file) {
   return new Promise((res, rej) => {
     const canvas = document.createElement('canvas')
     const img = new Image()
+    const objectUrl = URL.createObjectURL(file)
     img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
       const MAX = 800
       let w = img.width, h = img.height
       if (w > h && w > MAX) { h = (h * MAX) / w; w = MAX }
       else if (h > MAX) { w = (w * MAX) / h; h = MAX }
       canvas.width = w; canvas.height = h
       canvas.getContext('2d').drawImage(img, 0, 0, w, h)
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.6)
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.7)
       res(dataUrl.split(',')[1])
     }
-    img.onerror = rej
-    img.src = URL.createObjectURL(file)
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); rej(new Error('Image load failed')) }
+    img.src = objectUrl
   })
 }

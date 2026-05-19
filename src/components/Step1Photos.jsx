@@ -15,7 +15,7 @@ export default function Step1Photos({ tab, category, setCategory, categories, on
     const b64 = await toBase64(file)
     setShotPhotos(prev => ({
       ...prev,
-      [shotId]: { preview: URL.createObjectURL(file), b64, type: file.type, file }
+      [shotId]: { preview: URL.createObjectURL(file), b64, type: 'image/jpeg', file }
     }))
   }
 
@@ -65,6 +65,22 @@ export default function Step1Photos({ tab, category, setCategory, categories, on
           ))}
         </div>
       </div>
+
+      {/* Bulk select */}
+      <label style={{ ...s.card, display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', border: `2px dashed ${accent}`, background: isLuxury ? '#FAFAF7' : '#F0FDFA' }}>
+        <span style={{ fontSize: 28 }}>📁</span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: accent }}>Select all photos at once</div>
+          <div style={{ fontSize: 11, color: '#9A8A78', marginTop: 2 }}>Pick multiple images in one go — they'll fill the slots below</div>
+        </div>
+        <input type="file" accept="image/*" multiple style={{ display: 'none' }}
+          onChange={e => {
+            const files = Array.from(e.target.files)
+            files.forEach((f, i) => {
+              if (i < shots.length) addPhoto(shots[i].id, f)
+            })
+          }} />
+      </label>
 
       {/* Shot guide */}
       <div style={s.card}>
