@@ -21,9 +21,7 @@ export function buildAnalysisPrompt(tab, category, shotGuide) {
   const shotNames = shotGuide.map(s => s.label).join(', ')
   const isLuxury = tab === 'luxury'
 
-  return `${SYSTEM_PROMPT}
-
-TASK: PHASE 1 + PHASE 2 — Visual Analysis and Photo Review
+  return `TASK: PHASE 1 + PHASE 2 — Visual Analysis and Photo Review
 
 Analyze the uploaded photos carefully. This is a ${isLuxury ? 'luxury' : 'local marketplace'} item in the category: ${category}.
 
@@ -71,9 +69,7 @@ export function buildListingPrompt(tab, category, itemDetails) {
     .map(([k, v]) => `${k}: ${v}`)
     .join('\n')
 
-  return `${SYSTEM_PROMPT}
-
-TASK: PHASE 3 + PHASE 4 — Pricing Research and Listing Generation
+  return `TASK: PHASE 3 + PHASE 4 — Pricing Research and Listing Generation
 
 Item details (confirmed by seller):
 ${detailsStr}
@@ -134,21 +130,22 @@ Return ONLY valid JSON — no markdown, no backticks, no explanation:
 // ── API CALL (routes through Vercel serverless function) ──────────────────────
 export async function callAnalysis(images, tab, category, shotGuide) {
   const prompt = buildAnalysisPrompt(tab, category, shotGuide)
-  return callServer(images, prompt)
+  return callServer(images, prompt, SYSTEM_PROMPT)
 }
 
 export async function callListing(tab, category, itemDetails) {
   const prompt = buildListingPrompt(tab, category, itemDetails)
-  return callServer([], prompt)
+  return callServer([], prompt, SYSTEM_PROMPT)
 }
 
-async function callServer(images, prompt) {
+async function callServer(images, prompt, system) {
   const response = await fetch('/api/identify', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       images: images.map(img => ({ b64: img.b64, type: img.type })),
       prompt,
+      system,
     })
   })
 
