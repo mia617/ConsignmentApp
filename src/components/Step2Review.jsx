@@ -66,7 +66,21 @@ export default function Step2Review({
   }
 
   const handleNext = async () => {
-    onNext(edited, draftRow)
+    // Auto-save draft if not already saved, so Finalize button is never blocked
+    let rowToPass = draftRow
+    if (!rowToPass && googleAuthed) {
+      setSaving(true)
+      try {
+        const row = await saveDraft(tab, edited, consignor)
+        setDraftRow(row)
+        rowToPass = row
+      } catch (err) {
+        console.warn('Auto-save draft failed:', err.message)
+      } finally {
+        setSaving(false)
+      }
+    }
+    onNext(edited, rowToPass)
   }
 
   return (
