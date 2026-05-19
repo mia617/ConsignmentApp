@@ -166,9 +166,21 @@ async function callServer(images, prompt) {
 // ── FILE HELPERS ──────────────────────────────────────────────────────────────
 export function toBase64(file) {
   return new Promise((res, rej) => {
-    const r = new FileReader()
-    r.onload  = () => res(r.result.split(',')[1])
-    r.onerror = rej
-    r.readAsDataURL(file)
+    const canvas = document.createElement('canvas')
+    const img = new Image()
+    img.onload = () => {
+      // Resize to max 1200px on longest side
+      const MAX = 1200
+      let w = img.width, h = img.height
+      if (w > h && w > MAX) { h = (h * MAX) / w; w = MAX }
+      else if (h > MAX) { w = (w * MAX) / h; h = MAX }
+      canvas.width = w; canvas.height = h
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h)
+      // Compress to JPEG at 80% quality
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.8)
+      res(dataUrl.split(',')[1])
+    }
+    img.onerror = rej
+    img.src = URL.createObjectURL(file)
   })
 }
